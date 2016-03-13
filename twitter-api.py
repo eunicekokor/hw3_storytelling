@@ -4,9 +4,10 @@ import redis
 import collections
 import json
 import numpy as np
+import
 
 app = flask.Flask(__name__)
-conn = redis.Redis()
+conn = redis.Redis(port=6788)
 
 def buildHistogram():
     keys = conn.keys()
@@ -14,6 +15,11 @@ def buildHistogram():
     c = collections.Counter(values)
     z = sum(c.values())
     return {k:v/float(z) for k,v in c.items()}
+
+@app.route("/rate")
+def get_rate():
+  rate
+  return rate
 
 @app.route("/")
 def histogram():
@@ -28,29 +34,26 @@ def entropy():
 @app.route("/probability")
 def probability():
     city = request.args.get('city', '')
-    ref = request.args.get('referrer', '')
+    rt = request.args.get('retweets', '')
     # get the distribution for the city
     print city
     d = conn.hgetall(city)
     # get the count for the referrer
     try:
-      c = d[ref]
+      c = d[rt]
     except KeyError:
       return json.dumps({
         "city": city,
         "prob": 0,
-        "referrer": ref
+        "retweets": rt
       })
     # get the normalising constant
     z = sum([float(v) for v in d.values()])
     return json.dumps({
       "city": city,
       "prob": float(c)/z,
-      "referrer": ref
+      "retweets": rt
       })
-
-
-
 
 
 if __name__ == "__main__":
