@@ -1,26 +1,37 @@
+''' Based upon Mike's Demo at https://github.com/mikedewar/RealTimeStorytelling/'''
+
 import flask
 from flask import request
 import redis
 import collections
 import json
 import numpy as np
-import
-
+rate = None
+# This creates a Flask instance to host our API
 app = flask.Flask(__name__)
+# To get our data, we have to pull from our redis information
 conn = redis.Redis(port=6788)
 
 def buildHistogram():
+    # Getting all the city names and the values and returning a histogram representing
+    # The distribution of how many counts we have per city
     keys = conn.keys()
     values = conn.mget(keys)
     c = collections.Counter(values)
     z = sum(c.values())
+    print values
+    for k,v in c.items():
+      print v/float(z)
+
     return {k:v/float(z) for k,v in c.items()}
 
-@app.route("/rate")
-def get_rate():
-  rate
-  return rate
+# This fetches current rate, which is a global variable created as the stream is coming in
+# But is accessible from this function
+# @app.route("/rate")
+# def get_rate():
+#   return rate
 
+# This is the route that creates the histogram and displays it on the screen
 @app.route("/")
 def histogram():
     h = buildHistogram()

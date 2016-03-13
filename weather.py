@@ -14,7 +14,7 @@ while 1:
         continue
 
     try:
-        city = d["cy"]
+        city = d["city"]
     except KeyError:
         # if there is no city present in the message
         # then store a "null" city
@@ -22,5 +22,5 @@ while 1:
 
     t = str(time.time())
     conn.setex(t, city, 120)
-    print json.dumps({"t":t, "cy":city})
+    print json.dumps({"t":t, "city":city})
     sys.stdout.flush()

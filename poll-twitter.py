@@ -1,4 +1,4 @@
-# from config.keys import access_token_key,access_token_secret,consumer_secret,consumer_key
+''' Based upon Mike's Demo at https://github.com/mikedewar/RealTimeStorytelling/'''
 import redis
 import pprint
 import time
@@ -23,18 +23,12 @@ consumer_key = "sXYl8MLLMnfE7HCl9lIZ3ytEl"
   to interface with the API. '''
 api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_secret)
 
-''' This connects to a key value store called Redis, which we imported above. We will be using this later
-    in order to store all of the time deltas since each message occured in our stream so that we can calculate
-    the average rate of our stream. It's good to have something like this instead of a heavier database
-    that takes extra setup and configuration.'''
-# conn = redis.Redis()
-''' This parameter sets the initial state of last which is necessary for starting to gauge time-deltas (change in time since we saw the last message from our stream). The first time delta will not have a previous value to check against, so we will start w/ zero then start subtracting the last value we had for the time to get an adequate time-delta '''
-last = 0
 while True:
-    ''' These two variables below, TERM and LOCATION refer to what word we are searching for in the tweets as well
-    as what Latitude and Longitude that tweet came from. I chose New York City's coordinates and the search term `weather` in order to see if people are talking more and more about the weather '''
+    ''' I'm using one variable to track weather related tweets, but sometimes I use rain or sun as placeholders. TERM, TERM2, TERM3 refer to what word we are searching for in the tweets '''
     TERM = 'weather'
-    LOCATION = '-74,40,-73,41'
+    TERM2 = 'rain'
+    TERM3 = 'sunny'
+
     # print "searching for {} in NYC".format(TERM)
 
     ''' This is using the wrapper's api language and requesting to get a stream of tweets with the specified search conditions:TERM and LOCATION that are described above. r is a list of objects'''
@@ -46,7 +40,7 @@ while True:
 
     for item in r:
       if item.get("place",None) is not None:
-        d = {"time": time.time(), "city": str(item["place"]["full_name"]), "retweets": str(item["retweet_count"]),  "tweet": str(item["text"].encode('utf-8')), "created_at": str(item["created_at"].encode('utf-8'))}
+        d = {"time": time.time(), "city": str(item["place"]["full_name"]), "retweets": str(item["user"]["followers_count"]),  "tweet": str(item["text"].encode('utf-8')), "created_at": str(item["created_at"].encode('utf-8'))}
         if d:
           weather_tweets.append(d)
           print json.dumps(d)

@@ -1,3 +1,5 @@
+''' Based upon Mike's Demo at https://github.com/mikedewar/RealTimeStorytelling/'''
+
 import redis
 import time
 
